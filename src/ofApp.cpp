@@ -75,7 +75,14 @@ void ofApp::draw(){
 	//î‰ärÇ∑ÇÈïîï™
 	unsigned int comparingPart = JointType::JointType_SpineBase;
 	CameraSpacePoint center = CameraSpacePoint();
-	const float distanceThreshold = 1.0f;
+	const float distanceThreshold = 1.5f;
+
+	//ÉÜÅ[ÉUÅ[ÇÃÉiÉìÉoÅ[Ç∆ãóó£
+	vector<float>distanceList;
+	if (distanceList.size() != 0) distanceList.clear();
+	vector<float>playerNum;
+	if (playerNum.size() != 0) playerNum.clear();
+
 
 	for (int i = 0; i < jointList.size(); i++) {
 
@@ -88,28 +95,72 @@ void ofApp::draw(){
 		if (jointList[i].joint[comparingPart].TrackingState == TrackingState::TrackingState_Tracked) {
 			ofVec3f camspace = ofVec3f(center.X,center.Y,center.Z);
 			ofVec3f nowDistance = ofVec3f(jointList[i].joint[comparingPart].Position.X, jointList[i].joint[comparingPart].Position.Y, jointList[i].joint[comparingPart].Position.Z);
-			
+
 			//íÜêSÇ©ÇÁÇÃãóó£Ç™ãﬂÇ¢êlÇëIë
 			float distance = camspace.distance(nowDistance);
 			if (distance < distanceThreshold) {
 
-				//ä‘ê⁄ïîï™ÇÃï`âÊ
-				for (int type = 0; type < JointType_Count; type++) {
-					ColorSpacePoint colorSpacePoint = { 0 };
-					pCoordinateMapper->MapCameraPointToColorSpace(jointList[i].joint[type].Position, &colorSpacePoint);
-					int x = static_cast<int>(colorSpacePoint.X);
-					int y = static_cast<int>(colorSpacePoint.Y);
-					if ((x >= 0) && (x < colorWidth) && (y >= 0) && (y < colorHeight)){
 
-						ofSetColor(255, 0, 0);
-						ofCircle(x, y, 10);
-
-					}
-				}
+				distanceList.push_back(distance);
+				playerNum.push_back(i);
 
 			}
 
 		}
+
+		//ç≈å„Ç…Ç»Ç¡ÇΩÇÁ
+		if (i == jointList.size() - 1)	{
+
+			cout <<  distanceList.size() << endl;
+
+			float minNum;
+			float humanNum = 0;
+
+			if (distanceList.size() != 0) {
+				//ãóó£Çî‰är
+				for (int i = 0; i < distanceList.size(); i++) {
+					if (i == 0) {
+						cout << "ç≈èâÇÃãóó£ÇÃî‰är" << endl;
+
+						minNum = distanceList[i];
+						humanNum = playerNum[i];
+					}else{
+
+						//î‰är
+						if (minNum >= distanceList[i]) {
+							minNum = distanceList[i];
+							humanNum = i;
+						}else{
+							
+						}
+
+					}
+				}
+
+				//ä÷êﬂï`âÊ
+				for (int type = 0; type < JointType_Count; type++) {
+					cout << "ï`âÊ" << endl;
+
+					ColorSpacePoint colorSpacePoint = { 0 };
+					pCoordinateMapper->MapCameraPointToColorSpace( jointList[humanNum].joint[type].Position, &colorSpacePoint );
+					int x = static_cast<int>( colorSpacePoint.X );
+					int y = static_cast<int>( colorSpacePoint.Y );
+					if( ( x >= 0 ) && ( x < colorWidth ) && ( y >= 0 ) && ( y < colorHeight ) ){
+
+						ofSetColor(255,0,0);
+						ofCircle(x,y,10);
+
+					}
+				}
+			}
+
+
+
+
+
+		}
+
+
 
 	}
 
@@ -117,18 +168,18 @@ void ofApp::draw(){
 	/*
 	//ä‘ê⁄ïîï™ÇÃï`âÊ
 	for (int i = 0; i < jointList.size(); i++) {
-		for (int type = 0; type < JointType_Count; type++) {
-			ColorSpacePoint colorSpacePoint = { 0 };
-			pCoordinateMapper->MapCameraPointToColorSpace( jointList[i].joint[type].Position, &colorSpacePoint );
-			int x = static_cast<int>( colorSpacePoint.X );
-			int y = static_cast<int>( colorSpacePoint.Y );
-			if( ( x >= 0 ) && ( x < colorWidth ) && ( y >= 0 ) && ( y < colorHeight ) ){
+	for (int type = 0; type < JointType_Count; type++) {
+	ColorSpacePoint colorSpacePoint = { 0 };
+	pCoordinateMapper->MapCameraPointToColorSpace( jointList[i].joint[type].Position, &colorSpacePoint );
+	int x = static_cast<int>( colorSpacePoint.X );
+	int y = static_cast<int>( colorSpacePoint.Y );
+	if( ( x >= 0 ) && ( x < colorWidth ) && ( y >= 0 ) && ( y < colorHeight ) ){
 
-				ofSetColor(255,0,0);
-				ofCircle(x,y,10);
+	ofSetColor(255,0,0);
+	ofCircle(x,y,10);
 
-			}
-		}
+	}
+	}
 	}*/
 
 }
